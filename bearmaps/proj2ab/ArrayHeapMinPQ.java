@@ -66,10 +66,6 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
 
     /* an empty constructor of ArrayHeapMinPQ */
     public ArrayHeapMinPQ() {
-        this.clear();
-    }
-
-    private void clear() {
         minPQ = new ArrayHeapMinPQ.Node[INIT_CAPACITY];
         minPQ[0] = null;
         size = 0;
@@ -160,12 +156,9 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
     private void swim(int i) {
         validateSinkSwimArg(i);
         int parent = parentIndex(i);
-        if (parent == 0) {
-            return;
-        }
         /* as long as the inserted node is smaller than its parent,
         * it should be swam up to its parent's position. */
-        if (getMinIndex(i, parent) == i) {
+        if (parent >= 1 && getMinIndex(i, parent) == i) {
             swap(i, parent);
             swim(parent); // recursion
         }
@@ -204,6 +197,11 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
     * given T argument item is never null. */
     @Override
     public void add(T item, double priority) {
+
+        if (map.containsKey(item)) {
+            throw new IllegalArgumentException("Item already exists.");
+        }
+
         /* expand the minPQ if it is full */
         if (size + 1 == minPQ.length) {
             resize(minPQ.length * 2);
@@ -217,7 +215,7 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
     }
 
     /* return true if the heap is empty. */
-    private boolean isEmpty() {
+    boolean isEmpty() {
         return size() == 0;
     }
 
