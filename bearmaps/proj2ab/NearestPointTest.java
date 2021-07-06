@@ -19,15 +19,20 @@ public class NearestPointTest {
 
         KdTree kd = new KdTree(List.of(p1, p2, p3, p4));
         NaivePointSet naiveSet = new NaivePointSet(List.of(p1, p2, p3, p4));
+        WeirdPointSet weirdSet = new WeirdPointSet(List.of(p1, p2, p3, p4));
 
         Point nearestKD = kd.nearest(-1.0, 4.0);
         Point nearestNaive = naiveSet.nearest(-1.0, 4.0);
+        Point nearestWeird = weirdSet.nearest(-1.0, 4.0);
         assertTrue(nearestKD.equals(nearestNaive));
         assertEquals(p3, nearestKD);
+        assertEquals(p3, nearestWeird);
 
         nearestKD = kd.nearest(10.3, 5.7);
-        nearestNaive = naiveSet.nearest(10.3, 5);
+        nearestNaive = naiveSet.nearest(10.3, 5.7);
+        nearestWeird = weirdSet.nearest(10.3, 5.7);
         assertTrue(nearestKD.equals(nearestNaive));
         assertEquals(p4, nearestNaive);
+        assertEquals(p4, nearestWeird);
     }
 }
