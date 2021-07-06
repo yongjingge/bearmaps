@@ -2,6 +2,8 @@ package bearmaps.proj2ab;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -16,10 +18,12 @@ public class NearestPointTest {
         Point p2 = new Point(3.3, 4.4);
         Point p3 = new Point(-2.9, 4.2);
         Point p4 = new Point(11.3, 6);
+        List<Point> points = new ArrayList<>();
+        Collections.addAll(points, p1, p2, p3, p4);
 
-        KdTree kd = new KdTree(List.of(p1, p2, p3, p4));
-        NaivePointSet naiveSet = new NaivePointSet(List.of(p1, p2, p3, p4));
-        WeirdPointSet weirdSet = new WeirdPointSet(List.of(p1, p2, p3, p4));
+        KdTree kd = new KdTree(points);
+        NaivePointSet naiveSet = new NaivePointSet(points);
+        WeirdPointSet weirdSet = new WeirdPointSet(points);
 
         Point nearestKD = kd.nearest(-1.0, 4.0);
         Point nearestNaive = naiveSet.nearest(-1.0, 4.0);
