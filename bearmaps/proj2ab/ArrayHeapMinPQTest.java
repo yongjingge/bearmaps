@@ -109,7 +109,7 @@ public class ArrayHeapMinPQTest {
     @Test
     public void testCanNotSinkNull() {
         ex.expect(IllegalArgumentException.class);
-        ex.expectMessage("Cannot sink or swim a node with index greater than size.");
+        ex.expectMessage("Cannot sink or swim a node with invalid index.");
 
         ArrayHeapMinPQ<Integer> pq = new ArrayHeapMinPQ<>();
         pq.add(11, 1);

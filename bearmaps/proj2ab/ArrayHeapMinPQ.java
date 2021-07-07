@@ -139,11 +139,8 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
 
     /* throw exceptions if the given argument index is invalid for swim/sink operations. */
     private void validateSinkSwimArg(int index) {
-        if (index < 1) {
-            throw new IllegalArgumentException("Cannot sink or swim a node with index smaller than 1.");
-        }
-        if (index > size) {
-            throw new IllegalArgumentException("Cannot sink or swim a node with index greater than size.");
+        if (! inBounds(index)) {
+            throw new IllegalArgumentException("Cannot sink or swim a node with invalid index.");
         }
         if (getNode(index) == null) {
             throw new IllegalArgumentException("Cannot sink or swim a null node.");

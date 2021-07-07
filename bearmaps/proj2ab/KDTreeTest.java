@@ -1,7 +1,6 @@
 package bearmaps.proj2ab;
 
 import org.junit.Test;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /* test the result generated using two different 'nearest' methods */
-public class NearestPointTest {
+public class KDTreeTest {
 
     @Test
     public void testNearest() {
