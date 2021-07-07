@@ -77,7 +77,7 @@ public class ArraylistHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
 
     @Override
     public void add(T item, double priority) {
-        if (map.containsKey(item)) {
+        if (contains(item)) {
             throw new IllegalArgumentException("Item already exists.");
         }
         Node inserted = new Node(item, priority);
@@ -154,7 +154,7 @@ public class ArraylistHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
 
     @Override
     public void changePriority(T item, double priority) {
-        if (! map.containsKey(item)) {
+        if (! contains(item)) {
             throw new NoSuchElementException("Item does not exist.");
         }
         int index = map.get(item);

@@ -7,7 +7,9 @@ public class KdTree implements PointSet {
 
     private Node root;
 
-    /* nested class Node */
+    /* nested class Node:
+    * we can either add a compareTo method that compare two Node objects,
+    * or write a lambda expression outside the Node class to provide a compare method from the outside. */
     private static class Node implements Comparable<Node> {
 
         Point point; // key
@@ -94,13 +96,13 @@ public class KdTree implements PointSet {
         // update the best node information whenever we find a better one
         double bestDistance = distance(goal, best.point);
         double curDistance = distance(goal, n.point);
-        if (Double.compare(curDistance, bestDistance) < 0) {
+        if (Double.compare(curDistance, bestDistance) < 0) { // if current distance is less than the best distance
             best = n;
         }
 
         Node goalNode = new Node(goal);
         Node goodside, badside;
-        if (intComparator.compare(n, goalNode) < 0) {
+        if (intComparator.compare(n, goalNode) < 0) { // if n is less than goal
             goodside = n.right;
             badside = n.left;
         } else {
