@@ -195,7 +195,7 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
     @Override
     public void add(T item, double priority) {
 
-        if (map.containsKey(item)) {
+        if (contains(item)) {
             throw new IllegalArgumentException("Item already exists.");
         }
 
@@ -235,9 +235,6 @@ public class ArrayHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
     /* remove and return the item with smallest priority. If no such items exist, throw an exception. */
     @Override
     public T removeSmallest() {
-        if (isEmpty()) {
-            throw new NoSuchElementException("No such items exist.");
-        }
         T smallest = getSmallest();
         swap(1, size); // swap the smallest node with the last node in the minPQ
         // smallest one should be removed, after swapping, smallest item is at the end
