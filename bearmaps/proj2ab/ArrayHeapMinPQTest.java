@@ -33,6 +33,21 @@ public class ArrayHeapMinPQTest {
         assertEquals(6, pq.size());
         assertFalse(pq.isEmpty());
 
+        /* test using DoubleMapPQ */
+        DoubleMapPQ<Integer> doublePQ = new DoubleMapPQ<>();
+        assertTrue(doublePQ.size() == 0);
+        doublePQ.add(11, 1);
+        doublePQ.add(12, 5);
+        doublePQ.add(13, 2);
+        doublePQ.add(14, 11);
+        doublePQ.add(15, 0);
+        assertEquals(5, doublePQ.size());
+        assertTrue(doublePQ.getSmallest() == 15);
+        doublePQ.add(16,-1);
+        assertTrue(doublePQ.getSmallest() == 16);
+        assertEquals(6, doublePQ.size());
+        assertFalse(doublePQ.size() == 0);
+
         /* test ArrayList-based MinPQ */
         ArraylistHeapMinPQ<Integer> listPQ = new ArraylistHeapMinPQ<>();
         assertTrue(listPQ.size() == 0); // note minPQ.size() != the arraylist.size(), it equals to arraylist.size() - 1 !
@@ -92,6 +107,18 @@ public class ArrayHeapMinPQTest {
         assertFalse(pq.contains("smallest"));
         pq.add("another", 1);
         assertEquals("remove", pq.getSmallest());
+
+        DoubleMapPQ<String> doublePQ = new DoubleMapPQ<>();
+        doublePQ.add("test", 12);
+        doublePQ.add("evaluation", 5);
+        doublePQ.add("remove", 1);
+        doublePQ.add("smallest", 0);
+        assertEquals(4, doublePQ.size());
+        assertEquals("smallest", doublePQ.removeSmallest());
+        assertEquals("remove", doublePQ.getSmallest());
+        assertFalse(doublePQ.contains("smallest"));
+//        doublePQ.add("another", 1);
+//        assertEquals("remove", doublePQ.getSmallest());
 
         ArraylistHeapMinPQ<String> listPQ = new ArraylistHeapMinPQ<>();
         listPQ.add("test", 12);
@@ -159,6 +186,24 @@ public class ArrayHeapMinPQTest {
     @Test
     public void testChangePriorityFromListBasedPQ() {
         ArraylistHeapMinPQ<Integer> pq = new ArraylistHeapMinPQ<>();
+        pq.add(11, 1);
+        pq.add(12, 5);
+        pq.add(13, 2);
+        pq.add(14, 3);
+        pq.add(15, 0);
+        assertTrue(pq.getSmallest() == 15);
+        pq.changePriority(11, -1);
+        assertTrue(pq.getSmallest() == 11);
+        pq.removeSmallest();
+        pq.add(17, -3);
+        assertTrue(pq.getSmallest() == 17);
+        pq.changePriority(17, 11);
+        assertTrue(pq.getSmallest() == 15);
+    }
+
+    @Test
+    public void testChangePriorityFromDoubleMapPQ() {
+        DoubleMapPQ<Integer> pq = new DoubleMapPQ<>();
         pq.add(11, 1);
         pq.add(12, 5);
         pq.add(13, 2);

@@ -126,9 +126,6 @@ public class ArraylistHeapMinPQ<T> implements ExtrinsicMinPQ<T> {
 
     @Override
     public T removeSmallest() {
-        if (isEmpty()) {
-            throw new NoSuchElementException("No such items exist.");
-        }
         T smallest = getSmallest();
         swap(1, this.size());
         minPQ.remove(this.size());
