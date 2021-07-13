@@ -1,7 +1,5 @@
 package bearmaps.hw4;
 
-import bearmaps.hw4.test.WeightedDirectedGraph;
-import bearmaps.proj2ab.ArrayHeapMinPQ;
 import bearmaps.proj2ab.ArraylistHeapMinPQ;
 import bearmaps.proj2ab.ExtrinsicMinPQ;
 import edu.princeton.cs.algs4.Stopwatch;
@@ -64,15 +62,16 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
         Vertex f = edge.from();
         Vertex t = edge.to();
         double weight = edge.weight();
+        double ftdist = distTo.get(f) + weight;
 
         if (!distTo.containsKey(t)) {
-            distTo.put(t, distTo.get(f) + weight);
+            distTo.put(t, ftdist);
             edgeTo.put(t, f);
             fringe.add(t, distTo.get(t) + input.estimatedDistanceToGoal(t, end));
             return;
         }
-        if (distTo.get(t) > distTo.get(f) + weight) {
-            distTo.replace(t, distTo.get(f) + weight);
+        if (distTo.get(t) > ftdist) {
+            distTo.replace(t, ftdist);
             edgeTo.replace(t, f);
             if (fringe.contains(t)) {
                 fringe.changePriority(t, distTo.get(t) + input.estimatedDistanceToGoal(t, end));
