@@ -1,5 +1,7 @@
 package bearmaps.hw4;
 
+import bearmaps.hw4.test.WeightedDirectedGraph;
+import bearmaps.proj2ab.ArrayHeapMinPQ;
 import bearmaps.proj2ab.ArraylistHeapMinPQ;
 import bearmaps.proj2ab.ExtrinsicMinPQ;
 import edu.princeton.cs.algs4.Stopwatch;
@@ -12,82 +14,71 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
 
     private SolverOutcome outcome;
     private List<Vertex> solution;
-    private int numStatesExplored;
-    private double timeSpent;
     private double solutionWeight;
-
+    private int numDequeued;
+    private double timeSpent;
     private ExtrinsicMinPQ<Vertex> fringe;
-    private List<WeightedEdge<Vertex>> neighbors;
     private Map<Vertex, Double> distTo;
     private Map<Vertex, Vertex> edgeTo;
 
-    /* constructor which finds the solution */
     public AStarSolver(AStarGraph<Vertex> input, Vertex start, Vertex end, double timeout) {
+
         solution = new ArrayList<>();
         fringe = new ArraylistHeapMinPQ<>();
-        neighbors = new ArrayList<>(); // a list of adjacent edges of the given Vertex
         distTo = new HashMap<>();
         edgeTo = new HashMap<>();
+        Stopwatch sw = new Stopwatch();
 
         distTo.put(start, 0.0);
         edgeTo.put(start, null);
-        fringe.add(start, distTo.get(start) + input.estimatedDistanceToGoal(start, end));
-        numStatesExplored = 0;
+        numDequeued = 0;
+        fringe.add(start, input.estimatedDistanceToGoal(start, end));
 
-        Stopwatch sw = new Stopwatch();
-        boolean isEmpty = fringe.size() == 0;
-        boolean reachesGoal = fringe.getSmallest().equals(end);
-        boolean timeOut = sw.elapsedTime() >= timeout;
-
-        while(!isEmpty && !reachesGoal && !timeOut) {
+        while(fringe.size() != 0) {
+            if (fringe.getSmallest().equals(end)) {
+                outcome = SolverOutcome.SOLVED;
+                Vertex cur = fringe.getSmallest();
+                solutionWeight = distTo.get(cur);
+                while(! cur.equals(start)) {
+                    solution.add(cur);
+                    cur = edgeTo.get(cur);
+                }
+                solution.add(start);
+                Collections.reverse(solution);
+                return;
+            }
             Vertex cur = fringe.removeSmallest();
-            numStatesExplored += 1;
-            neighbors = input.neighbors(cur);
-            for (WeightedEdge<Vertex> edge : neighbors) {
+            numDequeued += 1;
+            for (WeightedEdge<Vertex> edge : input.neighbors(cur)) {
                 relax(edge, input, end);
             }
-            isEmpty = fringe.size() == 0;
-        }
-        timeSpent = sw.elapsedTime();
-
-        if (fringe.size() == 0) {
-            outcome = SolverOutcome.UNSOLVABLE;
-        } else if (reachesGoal) {
-            outcome = SolverOutcome.SOLVED;
-            Vertex cur = fringe.getSmallest();
-            solutionWeight = distTo.get(cur);
-            while(! cur.equals(start)) {
-                solution.add(cur);
-                cur = edgeTo.get(cur);
+            timeSpent = sw.elapsedTime();
+            if (timeSpent >= timeout) {
+                outcome = SolverOutcome.TIMEOUT;
             }
-            solution.add(start);
-            Collections.reverse(solution);
-        } else {
-            outcome = SolverOutcome.TIMEOUT;
         }
+        outcome = SolverOutcome.UNSOLVABLE;
     }
 
     private void relax(WeightedEdge<Vertex> edge, AStarGraph<Vertex> input, Vertex end) {
-        // edge: from v to w
-        Vertex v = edge.from();
-        Vertex w = edge.to();
-        double vwWeight = edge.weight();
-        double throughVtoW = distTo.get(v) + vwWeight;
+        Vertex f = edge.from();
+        Vertex t = edge.to();
+        double weight = edge.weight();
 
-        if (distTo.containsKey(w)) {
-            if (distTo.get(w) < throughVtoW) {
-                return;
-            }
-            distTo.replace(w, throughVtoW);
-            edgeTo.replace(w, v);
-        } else {
-            distTo.put(w, throughVtoW);
-            edgeTo.put(w, v);
+        if (!distTo.containsKey(t)) {
+            distTo.put(t, distTo.get(f) + weight);
+            edgeTo.put(t, f);
+            fringe.add(t, distTo.get(t) + input.estimatedDistanceToGoal(t, end));
+            return;
         }
-        if (fringe.contains(w)) {
-            fringe.changePriority(w, distTo.get(w) + input.estimatedDistanceToGoal(w, end));
-        } else {
-            fringe.add(w, distTo.get(w) + input.estimatedDistanceToGoal(w, end));
+        if (distTo.get(t) > distTo.get(f) + weight) {
+            distTo.replace(t, distTo.get(f) + weight);
+            edgeTo.replace(t, f);
+            if (fringe.contains(t)) {
+                fringe.changePriority(t, distTo.get(t) + input.estimatedDistanceToGoal(t, end));
+            } else {
+                fringe.add(t, distTo.get(t) + input.estimatedDistanceToGoal(t, end));
+            }
         }
     }
 
@@ -96,27 +87,23 @@ public class AStarSolver<Vertex> implements ShortestPathsSolver<Vertex> {
         return outcome;
     }
 
-    /* return a list of vertices corresponding to a solution */
     @Override
     public List<Vertex> solution() {
         return solution;
     }
 
-    /* total weight of the given solution */
-    @Override
-    public double solutionWeight() {
+   @Override
+   public double solutionWeight() {
         return solutionWeight;
-    }
+   }
 
-    /* total number of pq dequeue operations */
-    @Override
-    public int numStatesExplored() {
-        return numStatesExplored;
-    }
+   @Override
+   public int numStatesExplored() {
+        return numDequeued;
+   }
 
-    /* total time spent in seconds by the constructor */
-    @Override
-    public double explorationTime() {
+   @Override
+   public double explorationTime() {
         return timeSpent;
-    }
+   }
 }

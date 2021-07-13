@@ -8,7 +8,6 @@ import bearmaps.hw4.WeirdSolver;
  * Created by hug.
  * @source cs61b_sp19_lecture provided */
 public class DemoLectureExampleSolution {
-
     public static void main(String[] args) {
 
         WeightedDirectedGraph wdg = new WeightedDirectedGraph(7);
