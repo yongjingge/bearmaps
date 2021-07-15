@@ -119,7 +119,7 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
             }
         }
         depth = depth == -1 ? 7 : depth; // if all levels of LonDPPs are greater than the user's requested LonDPP, we provide the existing 'clearest' version
-        depth = depth > 7 ? 7 : depth;
+        depth = Math.min(depth, 7);
         results.put("depth", depth);
 
         /* lon/lat per tile */
