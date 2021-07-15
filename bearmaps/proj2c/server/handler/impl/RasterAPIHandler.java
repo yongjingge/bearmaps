@@ -17,8 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static bearmaps.proj2c.utils.Constants.SEMANTIC_STREET_GRAPH;
-import static bearmaps.proj2c.utils.Constants.ROUTE_LIST;
+import static bearmaps.proj2c.utils.Constants.*;
 
 /**
  * Handles requests from the web browser for map images. These images
@@ -29,7 +28,7 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
 
     /**
      * Each raster request to the server will have the following parameters
-     * as keys in the params map accessible by,
+     * as KEYS in the params map accessible by,
      * i.e., params.get("ullat") inside RasterAPIHandler.processRequest(). <br>
      * ullat : upper left corner latitude, <br> ullon : upper left corner longitude, <br>
      * lrlat : lower right corner latitude,<br> lrlon : lower right corner longitude <br>
@@ -86,9 +85,71 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
     public Map<String, Object> processRequest(Map<String, Double> requestParams, Response response) {
         //System.out.println("yo, wanna know the parameters given by the web browser? They are:");
         //System.out.println(requestParams);
+
+        /* process user's desired input */
+        double ullat = requestParams.get("ullat");
+        double ullon = requestParams.get("ullon");
+        double lrlat = requestParams.get("lrlat");
+        double lrlon = requestParams.get("lrlon");
+        double width = requestParams.get("w");
+        //double height = requestParams.get("h");
+
+        /* compute the ROOT width and height */
+        double rootLon = Math.abs(ROOT_LRLON - ROOT_ULLON);
+        double rootLat = Math.abs(ROOT_LRLAT - ROOT_ULLAT);
+        double tileSize = TILE_SIZE;
+
         Map<String, Object> results = new HashMap<>();
-        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
-                + "your browser.");
+        if (ullon >= ROOT_LRLON || ullat <= ROOT_LRLAT || lrlon <= ROOT_ULLON || lrlat >= ROOT_ULLAT) {
+            return queryFail();
+        }
+        results.put("query_success", true);
+
+        /* compute the depth */
+        double desiredLonDPP = (lrlon - ullon) / width;
+        double[] depthsLonDPP = new double[8];
+        int depth = -1;
+        for (int i = 0; i < 8; i += 1) {
+            depthsLonDPP[i] = (rootLon / (Math.pow(2.0, i) * tileSize));
+            depth = depthsLonDPP[i] < desiredLonDPP ? i : -1;
+        }
+        depth = Math.max(0, depth);
+        depth = Math.min(7, depth);
+        results.put("depth", depth);
+
+        /* lon/lat per tile */
+        double numOfTiles = Math.pow(2.0, depth);
+        double lonPerTile = rootLon / numOfTiles;
+        double latPerTile = rootLat / numOfTiles;
+
+        /* get the borders of the raster */
+        int left = (ullon >= ROOT_ULLON) ? (int) Math.floor((ullon - ROOT_ULLON) / lonPerTile) : 0;
+        int right = (lrlon <= ROOT_LRLON) ? (int) Math.floor((lrlon - ROOT_ULLON) / lonPerTile) : (int) numOfTiles - 1; // use Math.floor to enable "right + 1" later
+        int up = (ullat <= ROOT_ULLAT) ? (int) Math.floor((ROOT_ULLAT - ullat) / latPerTile) : 0;
+        int down = (lrlat >= ROOT_LRLAT) ? (int) Math.floor((ROOT_ULLAT - lrlat) / latPerTile) : (int) numOfTiles - 1;
+
+        /* compute their coordinates */
+        double raster_ul_lon = left * lonPerTile + ROOT_ULLON;
+        double raster_lr_lon = (right + 1) * lonPerTile + ROOT_ULLON;
+        double raster_ul_lat = ROOT_ULLAT - up * latPerTile;
+        double raster_lr_lat = ROOT_ULLAT - (down + 1) * latPerTile;
+
+        /* return value: String[][] */
+        String[][] render_grid = new String[depth][depth];
+        for (int i = 0; i < depth; i += 1) {
+            for (int j = 0; j < depth; j += 1) {
+                render_grid[i][j] = "d" + depth + "_x" + i + "_y" + j + ".png";
+            }
+        }
+
+        results.put("render_grid", render_grid);
+        results.put("raster_ul_lon", raster_ul_lon);
+        results.put("raster_ul_lat", raster_ul_lat);
+        results.put("raster_lr_lon", raster_lr_lon);
+        results.put("raster_lr_lat", raster_lr_lat);
+
+//        System.out.println("Since you haven't implemented RasterAPIHandler.processRequest, nothing is displayed in "
+//                + "your browser.");
         return results;
     }
 
@@ -122,14 +183,14 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
      * @param rip : Parameters provided by the rasterer
      */
     private boolean validateRasteredImgParams(Map<String, Object> rip) {
-        for (String p : REQUIRED_RASTER_RESULT_PARAMS) {
+        for (String p : REQUIRED_RASTER_RESULT_PARAMS) { // String mapped to 4 Double values
             if (!rip.containsKey(p)) {
                 System.out.println("Your rastering result is missing the " + p + " field.");
                 return false;
             }
         }
         if (rip.containsKey("query_success")) {
-            boolean success = (boolean) rip.get("query_success");
+            boolean success = (boolean) rip.get("query_success"); // String mapped to a Boolean value
             if (!success) {
                 System.out.println("query_success was reported as a failure");
                 return false;
