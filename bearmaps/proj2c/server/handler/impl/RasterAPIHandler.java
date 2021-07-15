@@ -23,6 +23,7 @@ import static bearmaps.proj2c.utils.Constants.*;
  * Handles requests from the web browser for map images. These images
  * will be rastered into one large image to be displayed to the user.
  * @author rahul, Josh Hug, _________
+ * @source https://blog.csdn.net/qq_45698833/article/details/116036624?spm=1001.2014.3001.5501
  */
 public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<String, Object>> {
 
