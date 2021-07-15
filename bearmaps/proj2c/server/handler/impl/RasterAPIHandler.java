@@ -139,7 +139,7 @@ public class RasterAPIHandler extends APIRouteHandler<Map<String, Double>, Map<S
         double raster_ul_lat = ROOT_ULLAT - up * latPerTile;
         double raster_lr_lat = ROOT_ULLAT - (down + 1) * latPerTile;
 
-        /* return value: String[x][y] */
+        /* return value: String[y][x] */
         String[][] render_grid = new String[down - up + 1][right - left + 1];
         for (int i = up; i <= down; i += 1) {
             for (int j = left; j <= right; j += 1) {
