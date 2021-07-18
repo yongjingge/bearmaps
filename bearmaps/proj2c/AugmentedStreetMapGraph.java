@@ -2,6 +2,7 @@ package bearmaps.proj2c;
 
 import bearmaps.hw4.streetmap.Node;
 import bearmaps.hw4.streetmap.StreetMapGraph;
+import bearmaps.proj2ab.KdTree;
 import bearmaps.proj2ab.Point;
 
 import java.util.*;
@@ -15,12 +16,22 @@ import java.util.*;
  */
 public class AugmentedStreetMapGraph extends StreetMapGraph {
 
+    Map<Point, Node> map;
+    List<Point> points;
+
     public AugmentedStreetMapGraph(String dbPath) {
         super(dbPath);
-        // You might find it helpful to uncomment the line below:
-        // List<Node> nodes = this.getNodes();
+        List<Node> nodes = this.getNodes();
+        map = new HashMap<>();
+        points = new ArrayList<>();
+        for (Node n : nodes) {
+            if (this.neighbors(n.id()).size() != 0) {
+                Point p = new Point(n.lon(), n.lat());
+                map.put(p, n);
+            }
+        }
+        points.addAll(map.keySet());
     }
-
 
     /**
      * For Project Part II
@@ -30,7 +41,9 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * @return The id of the node in the graph closest to the target.
      */
     public long closest(double lon, double lat) {
-        return 0;
+        KdTree kdTree = new KdTree(points);
+        Point nearest = kdTree.nearest(lon, lat);
+        return map.get(nearest).id();
     }
 
 
@@ -42,6 +55,7 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * @return A <code>List</code> of the full names of locations whose cleaned name matches the
      * cleaned <code>prefix</code>.
      */
+    //TODO
     public List<String> getLocationsByPrefix(String prefix) {
         return new LinkedList<>();
     }
@@ -59,6 +73,7 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * "name" -> String, The actual name of the node. <br>
      * "id" -> Number, The id of the node. <br>
      */
+    //TODO
     public List<Map<String, Object>> getLocations(String locationName) {
         return new LinkedList<>();
     }
