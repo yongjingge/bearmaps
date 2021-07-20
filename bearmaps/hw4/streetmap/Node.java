@@ -9,7 +9,6 @@ public class Node {
     private long id;
     private double lat;
     private double lon;
-
     private String name;
 
     private Node(long id, double lat, double lon) {
