@@ -2,6 +2,7 @@ package bearmaps.proj2c;
 
 import bearmaps.hw4.AStarSolver;
 import bearmaps.hw4.ShortestPathsSolver;
+import bearmaps.hw4.WeirdSolver;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,9 +28,10 @@ public class Router {
      */
     public static List<Long> shortestPath(AugmentedStreetMapGraph g, double stlon, double stlat,
                                           double destlon, double destlat) {
-        long start = g.closest(stlon, stlat);
-        long dest = g.closest(destlon, destlat);
-        ShortestPathsSolver<Long> solver = new AStarSolver<>(g, start, dest, 20);
+        Long startVertex = g.closest(stlon, stlat);
+        Long destVertex = g.closest(destlon, destlat);
+        ShortestPathsSolver<Long> solver = new AStarSolver<>(g, startVertex, destVertex, 20);
+        ShortestPathsSolver<Long> solverW = new WeirdSolver<>(g, startVertex, destVertex, 20); // used to varify the TestRouter result, test3 for 'shortestPaths' is initially incorrect.
         return solver.solution();
     }
 

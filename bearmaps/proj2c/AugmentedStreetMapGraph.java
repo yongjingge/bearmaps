@@ -18,24 +18,24 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
     Map<Point, Node> map;
     List<Point> points;
     TST trie = new TST();
-    Map<String, Set<String>> cleanToFullNames;
     Map<String, Set<Node>> cleanToNodes;
+    KdTree kdTree;
 
     public AugmentedStreetMapGraph(String dbPath) {
         super(dbPath);
-        List<Node> nodes = this.getNodes();
-        map = new HashMap<>();
-        points = new ArrayList<>();
-        cleanToFullNames = new HashMap<>();
-        cleanToNodes = new HashMap<>();
+        List<Node> graphNodes = this.getNodes();
+        map = new HashMap<>(); // mapping Point to Node
+        points = new ArrayList<>(); // record nodes with neighbors in the point format
+        cleanToNodes = new HashMap<>(); // mapping 'clean' name to Nodes
 
-        for (Node n : nodes) {
+        for (Node n : graphNodes) {
             if (this.neighbors(n.id()).size() != 0) {
                 Point p = new Point(n.lon(), n.lat());
                 map.put(p, n);
+                points.add(p);
             }
 
-            // multiple nodes can share the same clean name, we use a hashset to record the full name of these nodes.
+            // multiple nodes can share the same clean name, we use a hashset to record these nodes.
             if (n.name() != null) {
                 String cleanName = cleanString(n.name());
                 if (! cleanToNodes.containsKey(cleanName)) {
@@ -46,20 +46,8 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
                     cleanToNodes.get(cleanName).add(n);
                 }
             }
-
-            if (n.name() != null) {
-                String cleanN = cleanString(n.name());
-                if (! cleanToFullNames.containsKey(cleanN)) {
-                    Set<String> fullNames = new HashSet<>();
-                    fullNames.add(n.name());
-                    cleanToFullNames.put(cleanN, fullNames);
-                } else {
-                    cleanToFullNames.get(cleanN).add(n.name());
-                }
-            }
-
         }
-        points.addAll(map.keySet());
+        kdTree = new KdTree(points);
     }
 
     /**
@@ -70,7 +58,6 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * @return The id of the node in the graph closest to the target.
      */
     public long closest(double lon, double lat) {
-        KdTree kdTree = new KdTree(points);
         Point nearest = kdTree.nearest(lon, lat);
         return map.get(nearest).id();
     }
