@@ -11,24 +11,53 @@ import java.util.*;
  * An augmented graph that is more powerful that a standard StreetMapGraph.
  * Specifically, it supports the following additional operations:
  *
- *
  * @author Alan Yao, Josh Hug, ________
  */
 public class AugmentedStreetMapGraph extends StreetMapGraph {
 
     Map<Point, Node> map;
     List<Point> points;
+    TST trie = new TST();
+    Map<String, Set<String>> cleanToFullNames;
+    Map<String, Set<Node>> cleanToNodes;
 
     public AugmentedStreetMapGraph(String dbPath) {
         super(dbPath);
         List<Node> nodes = this.getNodes();
         map = new HashMap<>();
         points = new ArrayList<>();
+        cleanToFullNames = new HashMap<>();
+        cleanToNodes = new HashMap<>();
+
         for (Node n : nodes) {
             if (this.neighbors(n.id()).size() != 0) {
                 Point p = new Point(n.lon(), n.lat());
                 map.put(p, n);
             }
+
+            // multiple nodes can share the same clean name, we use a hashset to record the full name of these nodes.
+            if (n.name() != null) {
+                String cleanName = cleanString(n.name());
+                if (! cleanToNodes.containsKey(cleanName)) {
+                    Set<Node> nodesOfThisName = new HashSet<>();
+                    nodesOfThisName.add(n);
+                    cleanToNodes.put(cleanName, nodesOfThisName);
+                } else {
+                    cleanToNodes.get(cleanName).add(n);
+                }
+            }
+
+            if (n.name() != null) {
+                String cleanN = cleanString(n.name());
+                if (! cleanToFullNames.containsKey(cleanN)) {
+                    Set<String> fullNames = new HashSet<>();
+                    fullNames.add(n.name());
+                    cleanToFullNames.put(cleanN, fullNames);
+                } else {
+                    cleanToFullNames.get(cleanN).add(n.name());
+                }
+            }
+
         }
         points.addAll(map.keySet());
     }
@@ -55,9 +84,18 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * @return A <code>List</code> of the full names of locations whose cleaned name matches the
      * cleaned <code>prefix</code>.
      */
-    //TODO
     public List<String> getLocationsByPrefix(String prefix) {
-        return new LinkedList<>();
+        List<String> locationFullNames = new ArrayList<>();
+        String query = cleanString(prefix);
+        Queue<String> queue = trie.keyWithPrefix(query);
+        for (String single : queue) {
+            if (cleanToNodes.containsKey(single) && cleanToNodes.get(single) != null) {
+                for (Node n : cleanToNodes.get(single)) {
+                    locationFullNames.add(n.name());
+                }
+            }
+        }
+        return locationFullNames;
     }
 
     /**
@@ -73,9 +111,20 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
      * "name" -> String, The actual name of the node. <br>
      * "id" -> Number, The id of the node. <br>
      */
-    //TODO
     public List<Map<String, Object>> getLocations(String locationName) {
-        return new LinkedList<>();
+        List<Map<String, Object>> locations = new ArrayList<>();
+        String cleanLocation = cleanString(locationName);
+        if (cleanToNodes.containsKey(cleanLocation) && cleanToNodes.get(cleanLocation) != null) {
+            for (Node n : cleanToNodes.get(cleanLocation)) {
+                Map<String, Object> singleMap = new HashMap<>();
+                singleMap.put("lat", n.lat());
+                singleMap.put("lon", n.lon());
+                singleMap.put("name", n.name());
+                singleMap.put("id", n.id());
+                locations.add(singleMap);
+            }
+        }
+        return locations;
     }
 
 
