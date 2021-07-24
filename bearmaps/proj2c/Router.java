@@ -2,10 +2,10 @@ package bearmaps.proj2c;
 
 import bearmaps.hw4.AStarSolver;
 import bearmaps.hw4.ShortestPathsSolver;
+import bearmaps.hw4.WeightedEdge;
 import bearmaps.hw4.WeirdSolver;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,20 +38,71 @@ public class Router {
     /**
      * Create the list of directions corresponding to a route on the graph.
      * @param g The graph to use.
-     * @param route The route to translate into directions. Each element
-     *              corresponds to a node from the graph in the route.
-     * @return A list of NavigatiionDirection objects corresponding to the input
+     * @param route The route to translate into directions.
+     *              Each element corresponds to a node from the graph in the route.
+     * @return A list of NavigationDirection objects corresponding to the input
      * route.
      */
     public static List<NavigationDirection> routeDirections(AugmentedStreetMapGraph g, List<Long> route) {
-        /* fill in for part IV */
-        return null;
+        if (route.size() <= 1) {
+            return null;
+        }
+
+        LinkedList<NavigationDirection> nds = new LinkedList<>();
+        NavigationDirection nd = new NavigationDirection();
+        nd.direction = NavigationDirection.START;
+        nd.distance = 0.0;
+        nd.way = "";
+
+        Long start = route.remove(0);
+        Long startNext = route.remove(0);
+        for (WeightedEdge<Long> eOfStart : g.neighbors(start)) {
+            if (eOfStart.to().equals(startNext)) {
+                nd.distance = eOfStart.weight();
+                nd.way = eOfStart.getName() == null ? NavigationDirection.UNKNOWN_ROAD : eOfStart.getName();
+                nds.add(nd);
+                break;
+            }
+        }
+
+        Long pre = start;
+        Long cur = startNext;
+        while (route.size() != 0) {
+            Long next = route.remove(0);
+            WeightedEdge<Long> road = null;
+            for (WeightedEdge<Long> eOfCur : g.neighbors(cur)) {
+                if (eOfCur.to().equals(next)) {
+                    road = eOfCur;
+                    break;
+                }
+            }
+
+            /* if (on the same road) else (change) */
+            if (road.getName() != null && road.getName().equals(nds.getLast().way) ||
+                road.getName() == null && nds.getLast().equals(NavigationDirection.UNKNOWN_ROAD)) {
+                nds.getLast().distance += road.weight();
+            } else {
+                nd = new NavigationDirection();
+                nd.way = road.getName() == null ? NavigationDirection.UNKNOWN_ROAD : road.getName();
+                nd.distance = road.weight();
+                double preBearing = NavigationDirection.bearing(g.lon(pre), g.lon(cur), g.lat(pre), g.lat(cur));
+                double curBearing = NavigationDirection.bearing(g.lon(cur), g.lon(next), g.lat(cur), g.lat(next));
+                nd.direction = NavigationDirection.getDirection(preBearing, curBearing);
+                nds.add(nd);
+            }
+
+            pre = cur;
+            cur = next;
+        }
+        return nds;
     }
 
     /**
      * Class to represent a navigation direction, which consists of 3 attributes:
-     * a direction to go, a way, and the distance to travel for. This is only
-     * useful for Part IV of the project.
+     * a direction to go,
+     * a way,
+     * and the distance to travel for.
+     * This is only useful for Part IV of the project.
      */
     public static class NavigationDirection {
 
@@ -68,13 +119,13 @@ public class Router {
         /** Number of directions supported. */
         public static final int NUM_DIRECTIONS = 8;
 
-        /** A mapping of integer values to directions.*/
+        /** A mapping of integer values to directions. Totally 8 supported. */
         public static final String[] DIRECTIONS = new String[NUM_DIRECTIONS];
 
         /** Default name for an unknown way. */
         public static final String UNKNOWN_ROAD = "unknown road";
 
-        /** Static initializer. */
+        /** Static initializer. DIRECTIONS[START] is DIRECTIONS[0] */
         static {
             DIRECTIONS[START] = "Start";
             DIRECTIONS[STRAIGHT] = "Go straight";
@@ -86,11 +137,12 @@ public class Router {
             DIRECTIONS[SHARP_RIGHT] = "Sharp right";
         }
 
-        /** The direction a given NavigationDirection represents.*/
+        /* 3 attributes */
+        /** 1 The direction a given NavigationDirection represents.*/
         int direction;
-        /** The name of the way I represent. */
+        /** 2 The name of the way I represent. */
         String way;
-        /** The distance along this way I represent. */
+        /** 3 The distance along this way I represent. */
         double distance;
 
         /**
