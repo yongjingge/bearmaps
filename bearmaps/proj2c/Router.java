@@ -48,7 +48,8 @@ public class Router {
             return null;
         }
 
-        LinkedList<NavigationDirection> nds = new LinkedList<>();
+        //LinkedList<NavigationDirection> nds = new LinkedList<>();
+        List<NavigationDirection> nds = new ArrayList<>();
         NavigationDirection nd = new NavigationDirection();
         nd.direction = NavigationDirection.START;
         nd.distance = 0.0;
@@ -78,9 +79,10 @@ public class Router {
             }
 
             /* if (on the same road) else (change) */
-            if (road.getName() != null && road.getName().equals(nds.getLast().way) ||
-                road.getName() == null && nds.getLast().equals(NavigationDirection.UNKNOWN_ROAD)) {
-                nds.getLast().distance += road.weight();
+            if (road.getName() != null && road.getName().equals(nd.way) ||
+                road.getName() == null && nd.way.equals(NavigationDirection.UNKNOWN_ROAD)) {
+                nd.distance += road.weight();
+                //nds.getLast().distance += road.weight();
             } else {
                 nd = new NavigationDirection();
                 nd.way = road.getName() == null ? NavigationDirection.UNKNOWN_ROAD : road.getName();
@@ -90,7 +92,6 @@ public class Router {
                 nd.direction = NavigationDirection.getDirection(preBearing, curBearing);
                 nds.add(nd);
             }
-
             pre = cur;
             cur = next;
         }
