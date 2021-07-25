@@ -38,6 +38,7 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
             // multiple nodes can share the same clean name, we use a hashset to record these nodes.
             if (n.name() != null) {
                 String cleanName = cleanString(n.name());
+                trie.put(cleanName);
                 if (! cleanToNodes.containsKey(cleanName)) {
                     Set<Node> nodesOfThisName = new HashSet<>();
                     nodesOfThisName.add(n);
