@@ -31,7 +31,7 @@ public class StreetMapGraph implements AStarGraph<Long> {
      **/
     @Override
     public List<WeightedEdge<Long>> neighbors(Long v) {
-        Set<WeightedEdge<Long>> incidentSet = neighbors.get(v);
+        Set<WeightedEdge<Long>> incidentSet = neighbors.get(v); // turn set into a list
         List<WeightedEdge<Long>> incidentList = new ArrayList<>();
         for (WeightedEdge<Long> e : incidentSet) {
             incidentList.add(e);
@@ -46,7 +46,7 @@ public class StreetMapGraph implements AStarGraph<Long> {
      */
     @Override
     public double estimatedDistanceToGoal(Long s, Long goal) {
-        Node sNode = nodes.get(s);
+        Node sNode = nodes.get(s); // get node from its long id
         Node goalNode = nodes.get(goal);
         return distance(sNode.lon(), goalNode.lon(), sNode.lat(), goalNode.lat());
     }
