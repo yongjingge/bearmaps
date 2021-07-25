@@ -3,6 +3,10 @@ package bearmaps.proj2c;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+/**
+ * TST
+ * a Ternary Search Trie implementation
+ */
 public class TST {
     private TrieNode root;
     private int n;
