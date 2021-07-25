@@ -19,7 +19,7 @@ public class TST {
     }
 
     public boolean containsKey(String key) {
-        return get(key) != null;
+        return key == null ? false : get(key) != null;
     }
 
     private TrieNode get(String key) {
@@ -43,6 +43,8 @@ public class TST {
     }
 
     public void put(String key) {
+        // check if key is empty!
+        if (key == null || key.length() == 0) return;
         if (! containsKey(key)) {
             n += 1;
         }
