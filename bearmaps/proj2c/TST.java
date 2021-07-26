@@ -106,7 +106,7 @@ public class TST implements TrieSet61B {
         collect(x.left, prefix, res);
         res.add(prefix.toString() + x.c);
         collect(x.mid, prefix.append(x.c), res); // collect from x.mid, the prefix should append x.c
-        prefix.deleteCharAt(prefix.length() - 1);
+        prefix.deleteCharAt(prefix.length() - 1); // after collecting from x.mid, remove the appended last character
         collect(x.right, prefix, res);
     }
 
