@@ -17,7 +17,8 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
 
     Map<Point, Node> map;
     List<Point> points;
-    TST trie = new TST();
+//    TST trie = new TST();
+    TrieSet trie = new TrieSet();
     Map<String, Set<Node>> cleanToNodes;
     KdTree kdTree;
 
@@ -38,7 +39,7 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
             // multiple nodes can share the same clean name, we use a hashset to record these nodes.
             if (n.name() != null) {
                 String cleanName = cleanString(n.name());
-                trie.put(cleanName);
+                trie.add(cleanName);
                 if (! cleanToNodes.containsKey(cleanName)) {
                     Set<Node> nodesOfThisName = new HashSet<>();
                     nodesOfThisName.add(n);
@@ -75,7 +76,7 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
     public List<String> getLocationsByPrefix(String prefix) {
         List<String> locationFullNames = new ArrayList<>();
         String query = cleanString(prefix);
-        Queue<String> queue = trie.keyWithPrefix(query);
+        List<String> queue = trie.keysWithPrefix(query);
         for (String single : queue) {
             if (cleanToNodes.containsKey(single) && cleanToNodes.get(single) != null) {
                 for (Node n : cleanToNodes.get(single)) {
