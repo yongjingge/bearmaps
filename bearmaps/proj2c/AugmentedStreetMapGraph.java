@@ -76,10 +76,10 @@ public class AugmentedStreetMapGraph extends StreetMapGraph {
     public List<String> getLocationsByPrefix(String prefix) {
         List<String> locationFullNames = new ArrayList<>();
         String query = cleanString(prefix);
-        List<String> queue = trie.keysWithPrefix(query);
-        for (String single : queue) {
-            if (cleanToNodes.containsKey(single) && cleanToNodes.get(single) != null) {
-                for (Node n : cleanToNodes.get(single)) {
+        List<String> keys = trie.keysWithPrefix(query);
+        for (String k : keys) {
+            if (cleanToNodes.containsKey(k) && cleanToNodes.get(k) != null) {
+                for (Node n : cleanToNodes.get(k)) {
                     locationFullNames.add(n.name());
                 }
             }
