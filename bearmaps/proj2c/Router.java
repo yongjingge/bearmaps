@@ -31,7 +31,7 @@ public class Router {
         Long startVertex = g.closest(stlon, stlat);
         Long destVertex = g.closest(destlon, destlat);
         ShortestPathsSolver<Long> solver = new AStarSolver<>(g, startVertex, destVertex, 20);
-        ShortestPathsSolver<Long> solverW = new WeirdSolver<>(g, startVertex, destVertex, 20); // used to varify the TestRouter result, test3 for 'shortestPaths' is initially incorrect.
+        ShortestPathsSolver<Long> solverW = new WeirdSolver<>(g, startVertex, destVertex, 20); // used to verify the TestRouter result, test3 for 'shortestPaths' is initially incorrect.
         return solver.solution();
     }
 
